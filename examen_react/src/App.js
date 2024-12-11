@@ -7,25 +7,27 @@ import CampoEntrada from './components/CampoEntrada';
 const URL_API = 'https://674c84c054e1fca9290cd05f.mockapi.io/api/examen/empleado';
 
 function Aplicacion() {
-  const [empleados, setEmpleados] = useState(); 
+  const [empleados, setEmpleados] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [nuevoEmpleado, setNuevoEmpleado] = useState({ nombre: '', dni: '', direccion: '', correo: '' }); 
+  const [nuevoEmpleado, setNuevoEmpleado] = useState({ nombre: '', identificacion: '', direccion: '', correo: '' });
+
   useEffect(() => {
     axios.get(URL_API)
       .then(response => setEmpleados(response.data))
       .catch(error => console.error('Error al obtener empleados:', error));
   }, []);
 
-  
-  const manejarCambioEntrada = (e) => {
-    const { nombre, valor } = e.target; 
-    setNuevoEmpleado({ ...nuevoEmpleado, [nombre]: valor }); 
 
- 
+  const manejarCambioEntrada = (e) => {
+    const { name, value } = e.target;
+    setNuevoEmpleado({ ...nuevoEmpleado, [name]: value });
+  };
+
+
   const validarFormulario = () => {
-    const { nombre, dni, direccion, correo } = nuevoEmpleado; 
-    if (!nombre || !dni || !direccion || !correo) {
-      alert('Todos los campos son obligatorios'); 
+    const { nombre, identificacion, direccion, correo } = nuevoEmpleado;
+    if (!nombre || !identificacion || !direccion || !correo) {
+      Swal.fire('Error', 'Todos los campos son obligatorios', 'error');
       return false;
     }
     return true;
@@ -38,34 +40,34 @@ function Aplicacion() {
     axios.post(URL_API, nuevoEmpleado)
       .then(() => {
         Swal.fire('Éxito', 'Empleado agregado correctamente', 'success');
-        setEmpleados([...empleados, nuevoEmpleado]); 
+        setEmpleados([...empleados, nuevoEmpleado]);
         setMostrarModal(false);
-        setNuevoEmpleado({ nombre: '', dni: '', direccion: '', correo: '' });
+        setNuevoEmpleado({ nombre: '', identificacion: '', direccion: '', correo: '' });
       })
-      .catch(error => console.error('Error:', error)); 
+      .catch(error => Swal.fire('Error', 'No se pudo agregar el empleado', 'error'));
   };
 
   return (
     <div className="container mt-4">
       <h1 className="text-center">Gestión de Empleados</h1>
-      <Button variant="primary" onClick={() => setMostrarModal(true)}>
-        Agregar Empleado
+      <Button className="mb-3" variant="success" onClick={() => setMostrarModal(true)}>
+        <i className="fas fa-user-plus"></i> Agregar Empleado
       </Button>
 
-      <table className="table">
-        <thead>
+      <table className="table table-striped">
+        <thead className="thead-dark">
           <tr>
             <th>Nombre</th>
-            <th>DNI</th>
+            <th>Identificación</th>
             <th>Dirección</th>
-            <th>Correo</th>
+            <th>Correo Electrónico</th>
           </tr>
         </thead>
         <tbody>
-          {empleados.map((empleado, index) => (
-            <tr key={index}> {}
-              <td>{empleado.name}</td> {}
-              <td>{empleado.dni}</td>
+          {empleados.map((empleado) => (
+            <tr key={empleado.id}>
+              <td>{empleado.nombre}</td>
+              <td>{empleado.identificacion}</td>
               <td>{empleado.direccion}</td>
               <td>{empleado.correo}</td>
             </tr>
@@ -73,19 +75,44 @@ function Aplicacion() {
         </tbody>
       </table>
 
+      {}
       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)}>
-        <Modal.Header>
-          <Modal.Title>Agregar Empleado</Modal.Title>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Nuevo Empleado</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <CampoEntrada etiqueta="Nombre" nombre="nombre" valor={nuevoEmpleado.nombre} onChange={manejarCambioEntrada} />
-          <CampoEntrada etiqueta="DNI" nombre="dni" valor={nuevoEmpleado.dni} onChange={manejarCambioEntrada} />
-          <CampoEntrada etiqueta="Dirección" nombre="direccion" valor={nuevoEmpleado.direccion} onChange={manejarCambioEntrada} />
-          <CampoEntrada etiqueta="Correo" nombre="correo" valor={nuevoEmpleado.correo} onChange={manejarCambioEntrada} />
+          <CampoEntrada
+            etiqueta="Nombre"
+            nombre="nombre"
+            valor={nuevoEmpleado.nombre}
+            onChange={manejarCambioEntrada}
+          />
+          <CampoEntrada
+            etiqueta="Identificación"
+            nombre="identificacion"
+            valor={nuevoEmpleado.identificacion}
+            onChange={manejarCambioEntrada}
+          />
+          <CampoEntrada
+            etiqueta="Dirección"
+            nombre="direccion"
+            valor={nuevoEmpleado.direccion}
+            onChange={manejarCambioEntrada}
+          />
+          <CampoEntrada
+            etiqueta="Correo Electrónico"
+            nombre="correo"
+            valor={nuevoEmpleado.correo}
+            onChange={manejarCambioEntrada}
+          />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setMostrarModal(false)}>Cerrar</Button>
-          <Button onClick={guardarEmpleado}>Guardar</Button>
+          <Button variant="secondary" onClick={() => setMostrarModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="success" onClick={guardarEmpleado}>
+            Guardar
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>
